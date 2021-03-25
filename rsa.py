@@ -33,7 +33,7 @@ def choose_random_prime(n_bits):
 	if (n_bits > 16):
 		return choose_big_prime(n_bits)
 		
-	prime_number = [x for x in range(2 ** (n_bits - 1), 2 ** n_bits) if is_prime(x)]
+	prime_number = [x for x in range(2 ** (n_bits - 1) + 1, (2 ** n_bits) - 1) if is_prime(x)]
 
 	return random.choice(prime_number)
 
