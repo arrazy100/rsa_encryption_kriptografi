@@ -1,5 +1,4 @@
 from flask import Blueprint, render_template, request, jsonify
-from . import db
 from .rsa import get_rsa_key, encrypt_with_key, decrypt_with_key
 
 main = Blueprint("main", __name__)
