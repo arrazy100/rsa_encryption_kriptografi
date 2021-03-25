@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container" style="margin-top: 2em;">
+    <hr>
+    <h2>RSA Key Generation</h2>
+    <hr>
+
+    <form method="POST" id="generate_key">
+        <select id="key_length">
+            <option value="16">16 Bits</option>
+            <option value="64">64 Bits</option>
+            <option value="128">128 Bits</option>
+            <option value="256">256 Bits</option>
+            <option value="512">512 Bits</option>
+            <option value="1024">1024 Bits</option>
+            <option value="2048">2048 Bits</option>
+            <option value="4096">4096 Bits</option>
+        </select>
+        <button type="submit" id="generate_btn" class="btn btn-primary">Generate RSA Key</button>
+    </form>
+    
+    <div class="row" style="margin-top: 1em;">
+        <div class="col-12 col-md-6" style="padding-bottom: 1em;">
+            <b>Public Key</b>
+            <textarea class="form-control" id="public_key" cols="50" rows="7" disabled></textarea>
+            <button id="copy_public_key" class="btn btn-primary" onclick="copy_text('public_key')">Copy Text</button>
+        </div>
+        <div class="col-12 col-md-6">
+            <b>Private Key</b>
+            <textarea class="form-control" id="private_key" cols="50" rows="7" disabled></textarea>
+            <button id="copy_public_key" class="btn btn-primary" onclick="copy_text('private_key')">Copy Text</button>
+        </div>
+    </div>
+    
+    <div class="row" style="margin-top: 1em;">
+        <div class="col-12 col-md-6">
+            <hr>
+            <h2>Encrypt</h2>
+            <hr>
+            <form method="POST" id="encrypt">
+                <b>Public Key</b>
+                <div class="form-group">
+                    <textarea class="form-control" id="public_key_input" cols="50" rows="7"></textarea>
+                </div>
+
+                <b>Message</b>
+                <div class="form-group">
+                    <textarea class="form-control" id="message" cols="50" rows="7"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Encrypt</button>
+                
+                <div style="margin-top: 0.5em;">
+                    <b>Encrypted</b>
+                    <div class="form-group">
+                        <textarea class="form-control" id="encrypted" cols="50" rows="7" disabled></textarea>
+                        <button id="copy_public_key" class="btn btn-primary" onclick="copy_text('encrypted')">Copy Text</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="col-12 col-md-6">
+            <hr>
+            <h2>Decrypt</h2>
+            <hr>
+            <form method="POST" id="decrypt">
+                <b>Private Key</b>
+                <div class="form-group">
+                    <textarea class="form-control" id="private_key_input" cols="50" rows="7"></textarea>
+                </div>
+
+                <b>Encrypted Message</b>
+                <div class="form-group">
+                    <textarea class="form-control" id="encrypted_message" cols="50" rows="7"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Decrypt</button>
+
+                <div style="margin-top: 0.5em;">
+                    <b>Decrypted</b>
+                    <div class="form-group">
+                        <textarea class="form-control" id="decrypted" cols="50" rows="7" disabled></textarea>
+                        <button id="copy_public_key" class="btn btn-primary" onclick="copy_text('decrypted')">Copy Text</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function copy_text(id) {
+        var copyText = document.querySelector("#" + id);
+        text = document.createElement("textarea");
+        text.value = copyText.value;
+        document.body.appendChild(text);
+        text.select();
+        //copyText.setSelectionRange(0, 99999); /* For mobile devices */
+        document.execCommand("copy");
+        document.body.removeChild(text);
+    }
+
+    $("#generate_key").on("submit", function(e) {
+        e.preventDefault();
+        $("#generate_btn").attr("disabled", true);
+        $("#generate_btn").html("Generating...");
+        $.ajax({
+            type: "post",
+            url: "/_generate_key",
+            data: {key_length: $("#key_length").val()},
+            dataType: "json",
+            success: function(data) {
+                $("textarea#public_key").html(data.public_key)
+                $("textarea#private_key").html(data.private_key)
+                $("#generate_btn").attr("disabled", false);
+                $("#generate_btn").html("Generate RSA Key");
+            }
+        });
+    });
+
+    $("#encrypt").on("submit", function(e) {
+        e.preventDefault();
+        $.ajax({
+            type: "post",
+            url: "/_encryption",
+            data: {public_key: $("#public_key_input").val(), message: $("#message").val()},
+            dataType: "json",
+            success: function(data) {
+                $("textarea#encrypted").html(data.encrypted)
+            }
+        });
+    });
+
+    $("#decrypt").on("submit", function(e) {
+        e.preventDefault();
+        $.ajax({
+            type: "post",
+            url: "/_decryption",
+            data: {private_key: $("#private_key_input").val(), message: $("#encrypted_message").val()},
+            dataType: "json",
+            success: function(data) {
+                $("textarea#decrypted").html(data.decrypted)
+            }
+        });
+    });
+</script>
+
+{% endblock %}
