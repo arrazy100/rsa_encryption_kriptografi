@@ -1,0 +1,5 @@
+pip3 install -r requirements.txt
+
+export FLASK_APP=rsa_encryption_kriptografi
+export FLASK_DEBUG=1 (optional)
+flask run
